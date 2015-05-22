@@ -3,7 +3,7 @@
 ## Installation
 
 ```
-$ pip install git+git://github.com/simonsystem.de/kapitools.git
+$ pip install git+git://github.com/simonsystem/kapitools.git
 ```
 
 ## Usage
