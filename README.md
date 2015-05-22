@@ -1,5 +1,11 @@
 # kapitools
 
+## Installation
+
+```
+$ pip install git+git://github.com/simonsystem.de/kapitools.git
+```
+
 ## Usage
 
 ```python
