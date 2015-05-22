@@ -43,7 +43,7 @@ LEVEL = {
     "Weber": 9
 }
 
-last_data, last_result = {}, None
+last_data, last_result = None, None
 
 def calc_producing_rate(building, product, level, workers):
     assert isinstance(building, str)
@@ -52,6 +52,7 @@ def calc_producing_rate(building, product, level, workers):
     assert isinstance(workers, int)
     global last_data, last_result
 
+    tstamp = int(time.time())
     data = {
         "action": "send",
         "gebid": BUILDINGS[building],
@@ -60,14 +61,14 @@ def calc_producing_rate(building, product, level, workers):
         "quali": 0,
         "zeitrechner": 0,
         "stunden": 1,
-        "t_tag": int(time.time()),
+        "t_tag": 79200 + tstamp - tstamp % 86400,
         "t_std": 0,
         "t_min": 0,
         "submit": "rechnen"
     }
     
     url = "http://www.kapitools.de/regnum/prodmengen-rechner.php"
-    is_same = any(True for k in last_data if k in data and data[k] == last_data[k])
+    is_same = last_data and all(data[k] == last_data[k] for k in data)
     if not is_same:
         last_data = data
         last_result = requests.post(url, data=data)
