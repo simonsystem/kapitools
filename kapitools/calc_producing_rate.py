@@ -1,10 +1,7 @@
 import bs4
 import re
 import time
-import locale
 import requests
-
-locale.setlocale(locale.LC_NUMERIC, "de_DE.UTF-8")
 
 BUILDINGS = {
     "Holzfaeller": 11,
@@ -78,6 +75,7 @@ def calc_producing_rate(building, product, level, workers):
     soup = bs4.BeautifulSoup(last_result.text)
     product_div_elem = soup.find(text=product)
     rate_string_elem = product_div_elem.parent.next_sibling.next_sibling.next_element
-    return locale.atof(rate_string_elem)
+    us_float_string = rate_string_elem.replace(".", "").replace(",", ".")
+    return float(us_float_string)
 
 
