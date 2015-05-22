@@ -46,7 +46,7 @@ LEVEL = {
     "Weber": 9
 }
 
-last_data, last_result = None, None
+last_data, last_result = {}, None
 
 def calc_producing_rate(building, product, level, workers):
     assert isinstance(building, str)
@@ -68,10 +68,10 @@ def calc_producing_rate(building, product, level, workers):
         "t_min": 0,
         "submit": "rechnen"
     }
+    
     url = "http://www.kapitools.de/regnum/prodmengen-rechner.php"
-
-    if last_data != data:
-        print("new")
+    is_same = any(True for k in last_data if k in data and data[k] == last_data[k])
+    if not is_same:
         last_data = data
         last_result = requests.post(url, data=data)
 
