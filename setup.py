@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name = "kapitools",
-    version = "0.0.2",
+    version = "0.0.3",
     author = "Simon Schroeter",
     author_email = "simon.schroeter@gmail.com",
     description = ("Caculate KapiRegnums producing rate using "
