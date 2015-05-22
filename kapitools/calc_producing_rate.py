@@ -3,7 +3,6 @@ import re
 import time
 import locale
 import requests
-import six
 
 locale.setlocale(locale.LC_NUMERIC, "de_DE.UTF-8")
 
