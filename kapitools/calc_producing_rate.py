@@ -45,7 +45,7 @@ LEVEL = {
 
 last_data, last_result = None, None
 
-def calc_producing_rate(building, product, level, workers):
+def calc_producing_rate(building, product, level, workers, alternative=True):
     assert isinstance(building, str)
     assert isinstance(product, str)
     assert isinstance(level, str)
@@ -74,8 +74,10 @@ def calc_producing_rate(building, product, level, workers):
         last_result = requests.post(url, data=data)
 
     soup = bs4.BeautifulSoup(last_result.text)
-    product_div_elem = soup.find(text=product)
-    rate_string_elem = product_div_elem.parent.next_sibling.next_sibling.next_element
+    table = soup.find("table", class_="listtable")
+    product_string_elem = alternative and table.find(text=product + " ") \
+                                      or table.find(text=product)
+    rate_string_elem = product_string_elem.parent.next_sibling.next_sibling.next_element
     us_float_string = rate_string_elem.replace(".", "").replace(",", ".")
     return float(us_float_string)
 
