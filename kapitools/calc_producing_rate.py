@@ -2,6 +2,8 @@ import bs4
 import re
 import time
 import requests
+import os
+import json
 
 BUILDINGS = {
     "Holzfaeller": 11,
@@ -44,14 +46,34 @@ LEVEL = {
 }
 
 last_data, last_result = None, None
+cache_path = os.getcwd() + "/kapicache.json"
 
-def calc_producing_rate(building, product, level, workers, alternative=True):
-    assert isinstance(building, str)
-    assert isinstance(product, str)
-    assert isinstance(level, str)
-    assert isinstance(workers, int)
+def set_cache(path):
+    global cache_path
+    cache_path = path
+
+def _load_cache():
+    try:
+        with open(cache_path) as cache_file:
+            return json.load(cache_file)
+    except IOError:
+        return []
+def _save_cache(data):
+    with open(cache_path, "w") as cache_file:
+        json.dump(data, cache_file)
+
+def _get_producing_rate_from_file(building, product, level, workers, alternative):
+    for l in _load_cache():
+        if l[:5] == [building, product, level, workers, alternative]:
+            return l[5]
+    return None
+def _write_producing_rate_to_file(building, product, level, workers, alternative, producing_rate):
+    c = _load_cache()
+    c.append([building, product, level, workers, alternative, producing_rate])
+    _save_cache(c)
+
+def _get_producing_rate_from_server(building, product, level, workers, alternative):
     global last_data, last_result
-
     tstamp = int(time.time())
     data = {
         "action": "send",
@@ -81,4 +103,15 @@ def calc_producing_rate(building, product, level, workers, alternative=True):
     us_float_string = rate_string_elem.replace(".", "").replace(",", ".")
     return float(us_float_string)
 
+def calc_producing_rate(building, product, level, workers, alternative=True):
+    assert isinstance(building, str)
+    assert isinstance(product, str)
+    assert isinstance(level, str)
+    assert isinstance(workers, int)
+    assert isinstance(alternative, bool)
 
+    r = _get_producing_rate_from_file(building, product, level, workers, alternative)
+    if r is None:
+        r = _get_producing_rate_from_server(building, product, level, workers, alternative)
+        _write_producing_rate_to_file(building, product, level, workers, alternative, r)
+    return r
