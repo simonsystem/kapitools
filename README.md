@@ -11,7 +11,8 @@ kapitools.**calc\_producing\_rate**(*building, product, level, workers, alternat
 
 Get the calcutated producing rate from the server or a local file.
 
-str **building*: Building in which the Product is produced. (Ae-encoding 
+str **building**: Building in which the Product is produced. 
+(Ae-encoding 
 for german uml.)
 
 str **product**: Product which should be calulated.
