@@ -3,7 +3,7 @@ import re
 import time
 import requests
 import os
-import json
+import csv
 
 BUILDINGS = {
     "Holzfaeller": 11,
@@ -49,33 +49,20 @@ class ProductNotFoundError(Exception):
     pass
 
 last_data, last_result = None, None
-cache_path = os.getcwd() + "/kapicache.json"
+cache_path = os.getcwd() + "/kapicache.csv"
 
 def set_cache(path):
     global cache_path
     cache_path = path
 
-def _load_cache():
-    try:
-        with open(cache_path) as cache_file:
-            return json.load(cache_file)
-    except IOError:
-        return []
-
-def _save_cache(data):
-    with open(cache_path, "w") as cache_file:
-        json.dump(data, cache_file)
-
-def _get_producing_rate_from_file(building, product, level, workers, alternative):
-    for l in _load_cache():
-        if l[:5] == [building, product, level, workers, alternative]:
-            return l[5]
+def _get_producing_rate_from_file(reader, *args):
+    for line in reader:
+        if line[:5] == list(args):
+            return float(line[5])
     return None
 
-def _write_producing_rate_to_file(building, product, level, workers, alternative, producing_rate):
-    c = _load_cache()
-    c.append([building, product, level, workers, alternative, producing_rate])
-    _save_cache(c)
+def _write_producing_rate_to_file(writer, *args):
+    writer.writerow(args)
 
 def _get_producing_rate_from_server(building, product, level, workers, alternative):
     global last_data, last_result
@@ -126,9 +113,12 @@ def calc_producing_rate(building, product, level, workers, alternative=True):
     assert isinstance(level, str)
     assert isinstance(workers, int)
     assert isinstance(alternative, bool)
+    with open(cache_path, "a+b") as cache_file:
+        reader = csv.reader(cache_file)
+        writer = csv.writer(cache_file)
+        r = _get_producing_rate_from_file(reader, building, product, level, str(workers), str(alternative))
+        if r is None:
+            r = _get_producing_rate_from_server(building, product, level, workers, alternative)
+            _write_producing_rate_to_file(writer, building, product, level, str(workers), str(alternative), str(r))
+        return r
 
-    r = _get_producing_rate_from_file(building, product, level, workers, alternative)
-    if r is None:
-        r = _get_producing_rate_from_server(building, product, level, workers, alternative)
-        _write_producing_rate_to_file(building, product, level, workers, alternative, r)
-    return r
