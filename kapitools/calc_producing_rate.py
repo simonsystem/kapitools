@@ -103,7 +103,7 @@ def _get_producing_rate_from_server(building, product, level, workers, alternati
     soup = bs4.BeautifulSoup(last_result.text)
     table = soup.find("table", class_="listtable")
 
-    encoded_product = re.sub(r"[AOUaou]e", ".+", product)
+    encoded_product = re.sub(r"([AOUaou]e|sz)", ".+", product)
     alt_re = re.compile("^" + encoded_product + " $")
     nonalt_re = re.compile("^" + encoded_product + "$")
 
